@@ -8,20 +8,20 @@ import '../util/runnable_process.dart';
 /// The [DartSdk] provides access to a number of the dart sdk tools
 /// as well as details on the active sdk instance.
 class DartSdk {
-  static DartSdk _self;
+  static late final DartSdk _self = DartSdk._internal();
 
-  /// Path of Dart SDK
-  String _sdkPath;
+  /// Path of Dart SDK. Null if we can't find the sdk.
+  String? _sdkPath;
 
-  // Path the dart executable obtained by scanning the PATH
-  String _exePath;
+  /// Path the dart executable obtained by scanning the PATH
+  /// Null if we can't find the sdk.
+  String? _exePath;
 
-  String _version;
+  /// if we can't find the sdk then we won't have a version.
+  String? _version;
 
   ///
   factory DartSdk() {
-    _self ??= DartSdk._internal();
-
     return _self;
   }
 
@@ -33,7 +33,7 @@ class DartSdk {
   }
 
   /// The path to the dart 'bin' directory.
-  String get sdkPath {
+  String? get sdkPath {
     _sdkPath ??= _detect();
     return _sdkPath;
   }
@@ -66,7 +66,7 @@ class DartSdk {
   }
 
   /// The path to the dart exe.
-  String get dartExePath {
+  String? get dartExePath {
     if (_exePath == null) {
       // this is an expesive operation so only do it if required.
       var path = which(dartExeName, first: true).firstLine;
@@ -88,7 +88,7 @@ class DartSdk {
   /// [runtimePath] is the path to execute 'dart2native' in.
   void runDart2Native(
       String runtimeScriptPath, String outputPath, String runtimePath,
-      {Progress progress}) {
+      {Progress? progress}) {
     var runArgs = <String>[];
     runArgs.add(runtimeScriptPath);
     runArgs.add('--packages=${join(runtimePath, ".packages")}');

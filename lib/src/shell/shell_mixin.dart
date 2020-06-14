@@ -12,7 +12,7 @@ mixin ShellMixin implements Shell {
   /// Attempts to determine obtain the shell name from the SHELL environment variable.
   /// This will only work on posix systems.
   /// For Windows systems we will return null.
-  static String loginShell() {
+  static String? loginShell() {
     if (Platform.isWindows) return null;
     return basename(env('SHELL'));
   }

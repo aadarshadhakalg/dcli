@@ -123,15 +123,12 @@ void main() {
     return exists(pubSpecPath);
   }
 
-  bool _hasPubspecAnnotation;
+   late final bool _hasPubspecAnnotation = _findPubSpecAnnotation;
 
   /// true if the script has a @pubspec annotation embedded.
-  bool get hasPubspecAnnotation {
-    if (_hasPubspecAnnotation == null) {
-      var pubSpec = PubSpecAnnotation.fromScript(this);
-      _hasPubspecAnnotation = pubSpec.annotationFound();
-    }
-    return _hasPubspecAnnotation;
+  bool get _findPubSpecAnnotation {
+    var pubSpec = PubSpecAnnotation.fromScript(this);
+    return pubSpec.annotationFound;
   }
 
   /// Strips the root prefix of a path so we can use

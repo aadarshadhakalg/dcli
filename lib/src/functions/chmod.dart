@@ -35,7 +35,8 @@ class _ChMod extends DShellFunction {
 /// Thrown if the [chmod] function encounters an error.
 class ChModException extends DShellFunctionException {
   /// Thrown if the [chmod] function encounters an error.
-  ChModException(String reason, [StackTraceImpl stacktrace])
+  ChModException(String reason,
+      [StackTraceImpl stacktrace = const StackTraceImpl()])
       : super(reason, stacktrace);
 
   @override

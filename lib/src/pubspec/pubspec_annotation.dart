@@ -21,18 +21,22 @@ enum _State {
 /// annotation from a script.
 class PubSpecAnnotation implements PubSpec // with DependenciesMixin
 {
-  PubSpec _pubspec;
-  Script _script;
+  /// returns true if a @pubspec annotation was found.
+  late final bool annotationFound;
+  late PubSpec _pubspec;
 
   /// creates an annotation by reading it from a dart script.
-  PubSpecAnnotation.fromScript(this._script) {
+  PubSpecAnnotation.fromScript(Script script) {
     // Read script file as lines
-    var lines = _readLines(File(_script.path));
+    var lines = _readLines(File(script.path));
 
     var sourceLines = _extractAnnotation(lines);
 
     if (sourceLines.isNotEmpty) {
+      annotationFound = true;
       _pubspec = PubSpecImpl.fromString(sourceLines.join('\n'));
+    } else {
+      annotationFound = false;
     }
   }
 
@@ -41,11 +45,7 @@ class PubSpecAnnotation implements PubSpec // with DependenciesMixin
     var sourceLines = _extractAnnotation(annotation.split('\n'));
 
     _pubspec = PubSpecImpl.fromString(sourceLines.join('\n'));
-  }
-
-  /// returns true if a @pubspec annotation was found.
-  bool annotationFound() {
-    return _pubspec != null;
+    annotationFound = true;
   }
 
   ///

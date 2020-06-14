@@ -101,12 +101,13 @@ class TestFileSystem {
   void withinZone(void Function(TestFileSystem fs) callback) {
     try {
       NamedLock(name: 'test_file_system.lock').withLock(() {
-        Settings.reset();
         Env.reset();
+        var home = HOME;
+        Settings.reset();
         PubCache.unitTestreset();
         // print('PATH: $PATH');
         // print(which(DartSdk.pubExeName).firstLine);
-        var home = HOME;
+
         var path = env('PATH');
         try {
           setEnv('HOME', root);

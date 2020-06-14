@@ -70,7 +70,7 @@ class ShellDetection {
 
   Shell _searchProcessTree() {
     Shell firstShell;
-    Shell shell;
+    Shell? shell;
     var childPID = pid;
 
     var firstPass = true;

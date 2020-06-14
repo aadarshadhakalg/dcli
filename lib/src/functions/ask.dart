@@ -24,7 +24,7 @@ import 'echo.dart';
 /// In most cases stdin is attached to the console
 /// allow you to ask the user to input a value.
 ///
-/// If [prompt] is set then the prompt will be printed
+/// The [prompt] will be printed
 /// to the console and the cursor placed immediately after the prompt.
 ///
 /// if [toLower] is true then the returned result is converted to lower case.
@@ -59,7 +59,7 @@ import 'echo.dart';
 ///
 ///```
 String ask(
-        {String prompt,
+        {required String prompt,
         bool toLower = false,
         bool hidden = false,
         AskValidator validator = Ask.any}) =>
@@ -71,8 +71,8 @@ String ask(
 /// Accepted values are y|t|true|yes and n|f|false|no (case insenstiive).
 /// If the user enters an unknown value an error is printed
 /// and they are reprompted.
-bool confirm({String prompt}) {
-  bool result;
+bool confirm({required String prompt}) {
+  late bool result;
   var matched = false;
 
   prompt += ' (y/n):';
@@ -107,24 +107,27 @@ class Ask extends DShellFunction {
   /// Reads user input from stdin and returns it as a string.
   /// [prompt]
   String _ask(
-      {String prompt, bool toLower, bool hidden, AskValidator validator}) {
+      {required String prompt,
+      bool toLower = true,
+      bool hidden = false,
+      AskValidator validator = Ask.any}) {
     Settings().verbose('ask:  $prompt toLower: $toLower hidden: $hidden');
 
     String line;
     var valid = false;
     do {
-      if (prompt != null) {
-        echo('$prompt ', newline: false);
-      }
+      echo('$prompt ', newline: false);
 
       if (hidden == true && stdin.hasTerminal) {
         line = _readHidden();
       } else {
-        line = stdin.readLineSync(
-            encoding: Encoding.getByName('utf-8'), retainNewlines: false);
+        var tmp = stdin.readLineSync(retainNewlines: false);
+        if (tmp != null) {
+          line = tmp;
+        } else {
+          line = '';
+        }
       }
-
-      line ??= '';
 
       if (toLower == true) {
         line = line.toLowerCase();
@@ -183,7 +186,11 @@ class Ask extends DShellFunction {
     print('');
 
     // return the entered value as a String.
-    return Encoding.getByName('utf-8').decode(value);
+    var encoding = Encoding.getByName('utf-8');
+    if (encoding == null) {
+      throw UnsupportedError('The selected encoding "utf-8" is not supported');
+    }
+    return encoding.decode(value);
   }
 
   /// The default validator that considers any input as valid
@@ -367,11 +374,11 @@ class AskIPAddress extends AskValidator {
   /// By default both v4 and v6 addresses are valid
   /// Pass a [version] to limit the input to one or the
   /// other. If passed [version] must be 4 or 6.
-  const AskIPAddress({this.version});
+  const AskIPAddress({required this.version});
 
   @override
   String validate(String line) {
-    assert(version == null || version == 4 || version == 6);
+    assert(version == 4 || version == 6);
 
     line = line.trim();
 

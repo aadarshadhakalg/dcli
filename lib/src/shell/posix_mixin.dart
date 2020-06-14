@@ -3,25 +3,29 @@ import '../../dshell.dart';
 /// Provides a number of helper functions
 /// when for posix based shells.
 mixin PosixMixin {
-  String get startScriptName;
+  String get name;
+  String? get startScriptName;
 
-  String get startScriptPath {
+  String? get startScriptPath {
     return join(HOME, startScriptName);
   }
 
   /// Adds the given path to the zsh path if it isn't
   /// already on teh path.
   bool addToPath(String path) {
-    if (!isOnPath(path)) {
-      var export = 'export PATH=\$PATH:$path';
+    if (startScriptPath != null) {
+      if (!isOnPath(path)) {
+        var export = 'export PATH=\$PATH:$path';
 
-      var rcPath = startScriptPath;
-
-      if (!exists(rcPath)) {
-        rcPath.write(export);
-      } else {
-        rcPath.append(export);
+        if (!exists(startScriptPath)) {
+          startScriptPath.write(export);
+        } else {
+          rcPstartScriptPathath.append(export);
+        }
       }
+    } else {
+      throw UnsupportedError(
+          "The shell $name doesn't support a start script so we can't configure the path");
     }
     return true;
   }

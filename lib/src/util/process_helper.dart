@@ -18,7 +18,7 @@ class ProcessHelper {
   ProcessHelper._internal();
 
   /// returns the name of the process for the given pid.
-  String getProcessName(int pid) {
+  String? getProcessName(int pid) {
     if (Platform.isWindows) {
       return _getWindowsProcessName(pid);
     } else {
@@ -39,9 +39,7 @@ class ProcessHelper {
       // ps not supported on current OS
       line = 'unknown';
     }
-    if (line != null) {
-      line = line.trim();
-    }
+    line = line.trim();
 
     return line;
   }
@@ -70,14 +68,14 @@ class ProcessHelper {
   int _linuxGetParentPID(int childPid) {
     int parentPid;
 
-    String line;
+    String? line;
     try {
       line = 'ps -p $childPid -o ppid='.firstLine;
     } on ProcessException {
       // ps not supported on current OS
-      line = '-1';
     }
-    parentPid = int.tryParse(line.trim());
+    line ??= '-1';
+    parentPid = int.tryParse(line.trim())??-1;
 
     return parentPid;
   }
@@ -151,9 +149,8 @@ class ProcessHelper {
     return isRunning;
   }
 
-  /// completely untested as I don't have a windows box.
-  String _getWindowsProcessName(int lpid) {
-    String pidName;
+  String? _getWindowsProcessName(int lpid) {
+    String? pidName;
     for (var details in _getWindowsProcesses()) {
       if (lpid == details.pid) {
         pidName = details.processName;
@@ -172,19 +169,18 @@ class ProcessHelper {
 
     var lines = const CsvToListConverter().convert(tasks.join('\r\n'));
     for (var line in lines) {
-      var details = _PIDDetails();
-
-      details.processName = line[0] as String;
-      details.pid = int.tryParse(line[1] as String);
+      var processName = line[0] as String;
+      var pid = int.tryParse(line[1] as String)??0;
 
       var memparts = (line[4] as String).split(' ');
-      details.memory = memparts[0];
+      var memory = memparts[0];
       // details.memory can contain 'N/A' in which case their is no units.
+      String? memoryUnits;
       if (memparts.length == 2) {
-        details.memoryUnits = memparts[1];
+        memoryUnits = memparts[1];
       }
 
-      pids.add(details);
+      pids.add(_PIDDetails(pid, processName, memory, memoryUnits));
     }
 
     return pids;
@@ -195,11 +191,15 @@ class _PIDDetails {
   int pid;
   String processName;
   String memory;
-  String memoryUnits;
+  String? memoryUnits;
+
+  _PIDDetails(this.pid, this.processName, this.memory, this.memoryUnits);
 }
 
 class _WindowsParentProcess {
   String path;
   int parentPid;
   int processPid;
+
+  _WindowsParentProcess(this.path, this.parentPid, this.processPid);
 }

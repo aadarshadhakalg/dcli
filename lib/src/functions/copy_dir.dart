@@ -66,9 +66,9 @@ void copyDir(String from, String to,
 class _CopyDir extends DShellFunction {
   void copyDir(String from, String to,
       {bool overwrite = false,
-      bool Function(String file) filter,
-      bool includeHidden,
-      bool recursive}) {
+      bool Function(String file) filter = _includeAll,
+      bool includeHidden = false,
+      bool recursive = false}) {
     if (!isDirectory(from)) {
       throw CopyDirException(
           'The [from] path ${truepath(from)} must be a directory.');
@@ -114,6 +114,8 @@ class _CopyDir extends DShellFunction {
           'An error occured copying directory ${truepath(from)} to ${truepath(to)}. Error: $e');
     }
   }
+
+  bool _includeAll(String file) => true;
 }
 
 /// Throw when the [copy] function encounters an error.

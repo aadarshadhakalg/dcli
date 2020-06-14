@@ -4,8 +4,6 @@ import 'dart:io';
 
 import 'dart:isolate';
 
-import 'package:meta/meta.dart';
-
 import '../../dshell.dart';
 import 'stack_trace_impl.dart';
 import 'wait_for_ex.dart';
@@ -38,11 +36,11 @@ class NamedLock {
   /// so its the perfect way to create a lock that works
   /// across processes and isolates.
   final int port = 63424;
-  String _lockPath;
+  late String _lockPath;
 
   /// The name of the lock.
   final String name;
-  String _description;
+  String? _description;
 
   /// We use this to allow a lock to be-reentrant within an isolate.
   /// A non-zero value means we have the lock.
@@ -68,7 +66,7 @@ class NamedLock {
   /// to describe the lock.
   /// The [timeout] defines how long we will wait for
   /// a lock to become available. The default [timeout] is
-  /// infinite (null).
+  /// 1 hr.
   ///
   /// ```dart
   /// NamedLock(name: 'update-catalog').withLock(() {
@@ -79,15 +77,12 @@ class NamedLock {
   /// ```
   ///
   NamedLock({
-    @required this.name,
-    String lockPath,
-    String description,
-    Duration timeout,
+    required this.name,
+    String? lockPath,
+    String? description,
+    Duration timeout = const Duration(hours: 1),
   })  : _timeout = timeout,
-        _lockPath = lockPath,
         _description = description {
-    assert(name != null);
-
     _lockPath ??= join(rootPath, Directory.systemTemp.path, 'dshell', 'locks');
     _description ??= '';
   }
@@ -98,7 +93,7 @@ class NamedLock {
   /// a log message to the console.
   void withLock(
     void Function() fn, {
-    String waiting,
+    String? waiting,
   }) {
     var lockHeld = false;
     runZoned(() {
@@ -208,16 +203,13 @@ class NamedLock {
   /// If we find an existing lock file we check if the process
   /// that owns it is still running. If it isn't we
   /// take a lock and delete the orphaned lock.
-  bool _takeLock(String waiting) {
+  bool _takeLock(String? waiting) {
     assert(exists(_lockPath));
 
     var taken = false;
 
     // wait for the lock to release or the timeout to expire
-    var waitCount = -1;
-    if (_timeout != null) {
-      waitCount = _timeout.inSeconds;
-    }
+    var waitCount = _timeout.inSeconds;
 
     while (!taken && waitCount != 0) {
       _withHardLock(fn: () {
@@ -299,14 +291,12 @@ class NamedLock {
   }
 
   void _withHardLock({
-    Duration timeout,
-    void Function() fn,
+    required Duration timeout,
+    required void Function() fn,
   }) {
-    RawDatagramSocket socket;
+    RawDatagramSocket? socket;
 
-    var waitCount = -1;
-
-    if (timeout != null) waitCount = timeout.inSeconds;
+    var waitCount = timeout.inSeconds;
 
     try {
       var reusePort = Settings().isWindows ? false : true;

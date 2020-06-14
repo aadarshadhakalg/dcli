@@ -154,7 +154,7 @@ class DoctorCommand extends Command {
 
       label = label.padRight(20);
 
-      var username = env('USERNAME');
+      String? username = env('USERNAME');
       if (username != null) {
         print(Format.row([
           '$label',

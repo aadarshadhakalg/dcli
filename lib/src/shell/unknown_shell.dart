@@ -96,10 +96,10 @@ class UnknownShell with ShellMixin {
   int get hashCode => name.hashCode;
 
   @override
-  String get startScriptName => null;
+  String? get startScriptName => null;
 
   @override
-  String get startScriptPath => null;
+  String? get startScriptPath => null;
 
   @override
   bool get isPrivilegedUser => false;

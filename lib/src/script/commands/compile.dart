@@ -36,7 +36,7 @@ class CompileCommand extends Command {
 
       if (Flags.isFlag(subargument)) {
         scriptIndex++;
-        var flag = flagSet.findFlag(subargument, _compileFlags);
+        Flag? flag = flagSet.findFlag(subargument, _compileFlags);
 
         if (flag != null) {
           if (flagSet.isSet(flag)) {

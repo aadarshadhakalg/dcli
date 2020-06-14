@@ -12,7 +12,7 @@ class Progress {
   bool _closed = false;
 
   /// The exist code of the completed process.
-  int exitCode;
+  late int exitCode;
 
   final _stdoutCompleter = Completer<bool>();
   final _stderrCompleter = Completer<bool>();
@@ -22,7 +22,6 @@ class Progress {
 
   ///
   Progress(LineAction stdout, {LineAction stderr = devNull}) {
-    stderr ??= devNull;
     _wireStreams(stdout, stderr);
   }
 
@@ -60,7 +59,6 @@ class Progress {
 
   ///
   void forEach(LineAction stdout, {LineAction stderr = devNull}) {
-    stderr ??= devNull;
     _processUntilComplete(stdout, stderr: stderr);
   }
 
@@ -78,8 +76,6 @@ class Progress {
   /// processes both streams until they complete
   ///
   void _wireStreams(LineAction stdout, LineAction stderr) {
-    assert(stdout != null);
-    assert(stderr != null);
     _stdoutController.stream.listen((line) {
       stdout(line);
     },
@@ -126,8 +122,8 @@ class Progress {
 
   /// Returns the first line from the command or
   /// null if no lines where returned
-  String get firstLine {
-    String line;
+  String? get firstLine {
+    String? line;
     var lines = toList();
     if (lines.isNotEmpty) {
       line = lines[0];

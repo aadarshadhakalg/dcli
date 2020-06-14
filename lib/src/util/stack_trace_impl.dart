@@ -12,10 +12,11 @@ class StackTraceImpl implements core.StackTrace {
   final core.StackTrace _stackTrace;
 
   /// The working directory of the project (if provided)
-  final String workingDirectory;
+  final String? workingDirectory;
   final int _skipFrames;
 
-  List<Stackframe> _frames;
+  /// returns all frames from the stack trace.
+  late List<Stackframe> frames = _extractFrames();
 
   /// You can suppress call frames from showing
   /// by specifing a non-zero value for [skipFrames]
@@ -31,7 +32,7 @@ class StackTraceImpl implements core.StackTrace {
       : _stackTrace = stackTrace,
         _skipFrames = skipFrames {
     if (stackTrace is StackTraceImpl) {
-      _frames = stackTrace.frames;
+      frames = stackTrace.frames;
     }
   }
 
@@ -64,7 +65,7 @@ class StackTraceImpl implements core.StackTrace {
     return formatStackTrace();
   }
 
-  /// Outputs a formatted string of the current stack_trace_nj
+  /// Outputs a formatted string of the current [StackTraceImpl]
   /// showing upto [methodCount] methods in the trace.
   /// [methodCount] defaults to 10.
 
@@ -98,16 +99,10 @@ class StackTraceImpl implements core.StackTrace {
     }
 
     if (formatted.isEmpty) {
-      return null;
+      return '<Empty>';
     } else {
       return formatted.join('\n');
     }
-  }
-
-  /// returns all frames from the stack trace.
-  List<Stackframe> get frames {
-    _frames ??= _extractFrames();
-    return _frames;
   }
 
   List<Stackframe> _extractFrames() {
@@ -128,7 +123,7 @@ class StackTraceImpl implements core.StackTrace {
       // source is one of two formats
       // file:///.../package/filename.dart:column:line
       // package:/package/.path./filename.dart:column:line
-      var source = match.group(2);
+      var source = match.group(2) ?? '<Unknown>:0:0';
       var sourceParts = source.split(':');
 
       // deal with paths that contain c:\
@@ -148,19 +143,14 @@ class StackTraceImpl implements core.StackTrace {
       }
 
       // the actual contents of the line (sort of)
-      var details = match.group(1);
+      var details = match.group(1) ?? line;
 
       Stackframe frame;
-      if (sourcePath != null) {
-        sourcePath = sourcePath.replaceAll('<anonymous closure>', '()');
-        sourcePath = sourcePath.replaceAll('package:', '');
+      sourcePath = sourcePath.replaceAll('<anonymous closure>', '()');
+      sourcePath = sourcePath.replaceAll('package:', '');
 
-        frame = Stackframe(
-            File(sourcePath), int.parse(lineNo), int.parse(column), details);
-      } else {
-        frame = Stackframe(
-            File('<unknown>'), int.parse(lineNo), int.parse(column), details);
-      }
+      frame = Stackframe(
+          File(sourcePath), int.parse(lineNo), int.parse(column), details);
       stackFrames.add(frame);
     }
     return stackFrames;

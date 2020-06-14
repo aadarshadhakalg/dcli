@@ -7,7 +7,7 @@ import '../../dshell.dart';
 /// https://dart.dev/tools/pub/environment-variables
 ///
 class PubCache {
-  static PubCache _self;
+  static PubCache _self = PubCache._internal();
 
   String _pubCacheDir;
   String _pubCacheBinDir;
@@ -16,26 +16,28 @@ class PubCache {
 
   ///
   factory PubCache() {
-    _self ??= PubCache._internal();
     return _self;
   }
 
-  PubCache._internal() {
+  PubCache._internal() : _pubCacheDir = '.pub-cache' {
     // first check if an environment variable exists.
-    var pubCacheEnv = env(_pubCacheEnv);
+    String? pubCacheEnv = env(_pubCacheEnv);
 
     /// determine pubCacheDir
     if (pubCacheEnv != null) {
       _pubCacheDir = dirname(pubCacheEnv);
     }
-    _pubCacheDir ??= '.pub-cache';
+
     if (Platform.isWindows) {
-      _pubCacheDir ??= join('Pub', 'Cache');
+      _pubCacheDir = join('Pub', 'Cache');
     }
 
     // determine pub-cache path
-    _pubCachePath = pubCacheEnv;
-    _pubCachePath ??= truepath(join(HOME, _pubCacheDir));
+    if (pubCacheEnv != null) {
+      _pubCachePath = pubCacheEnv;
+    } else {
+      _pubCachePath = truepath(join(HOME, _pubCacheDir));
+    }
 
     // determine pub-cache/bin
     _pubCacheBinDir = truepath(join(_pubCachePath, 'bin'));

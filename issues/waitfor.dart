@@ -36,8 +36,8 @@ void waitForMe(Future future) {
   } // on AsyncError
   // ignore: avoid_catches_without_on_clauses
   catch (e) {
-    if (e.error is Exception) {
-      print(e.error);
+    if (e is Exception) {
+      print(e.toString());
     } else if (e is AsyncError) {
       print('Rethrowing a non DShellException $e');
       rethrow;
@@ -51,8 +51,9 @@ void waitForMe(Future future) {
 }
 
 T waitForEx<T>(Future<T> future) {
-  Object exception;
-  T value;
+  late Object exception;
+  var failed = false;
+  late T value;
   try {
     // catch any unhandled exceptions
     //ignore: avoid_types_on_closure_parameters
@@ -67,16 +68,19 @@ T waitForEx<T>(Future<T> future) {
         //ignore: avoid_types_on_closure_parameters
         onError: (Object error, StackTrace st) {
       exception = error;
+      failed = true;
     });
   }
   // ignore: avoid_catching_errors
   on AsyncError catch (e) {
     exception = e.error;
+    failed = true;
   } finally {
     print('existing try');
   }
 
-  if (exception != null) {
+  if (failed) {
+    var lexception = exception;
     // recreate the exception so we have a full
     // stacktrace rather than the microtask
     // stacktrace the future leaves us with.
@@ -85,7 +89,7 @@ T waitForEx<T>(Future<T> future) {
     if (exception is DShellException) {
       throw (exception as DShellException).copyWith(stackTrace);
     } else {
-      throw DShellException.from(exception, stackTrace);
+      throw DShellException.from(lexception, stackTrace);
     }
   }
   return value;

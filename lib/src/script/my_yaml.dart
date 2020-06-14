@@ -7,7 +7,7 @@ import 'dependency.dart';
 /// wrapper for the YamlDocument
 /// designed to make it easier to read yaml files.
 class MyYaml {
-  y.YamlDocument _document;
+  late final y.YamlDocument _document;
 
   /// read yaml from string
   MyYaml.fromString(String content) {
@@ -27,29 +27,32 @@ class MyYaml {
     return y.loadYamlDocument(content);
   }
 
-  /// reads the project name from the yaml file
+  /// Reads the value of the given key.
+  /// Returns an empty string if the key doesn't exist.
   ///
   String getValue(String key) {
     if (_document.contents.value == null) {
-      return null;
+      return '';
     } else {
       return _document.contents.value[key] as String;
     }
   }
 
-  /// returns the list of elements attached to [key].
+  /// returns the list of elements attached to [key]
+  /// or an empyt list of the key doesn't exist.
   y.YamlList getList(String key) {
     if (_document.contents.value == null) {
-      return null;
+      return y.YamlList();
     } else {
       return _document.contents.value[key] as y.YamlList;
     }
   }
 
-  /// returns the map of elements attached to [key].
+  /// returns the map of elements attached to [key]
+  /// or an empty map if the key doesn't exist.
   y.YamlMap getMap(String key) {
     if (_document.contents.value == null) {
-      return null;
+      return y.YamlMap();
     } else {
       return _document.contents.value[key] as y.YamlMap;
     }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+
 import '../settings.dart';
 import '../util/dshell_exception.dart';
 import '../util/runnable_process.dart';
@@ -20,12 +21,13 @@ import 'is.dart';
 /// If the file does not exists then a CatException is thrown.
 ///
 ///
-void cat(String path, {LineAction stdout}) => Cat().cat(path, stdout: stdout);
+void cat(String path, {LineAction stdout = print}) =>
+    Cat().cat(path, stdout: stdout);
 
 /// Class for the [cat] function.
 class Cat extends DShellFunction {
   /// implementation for the [cat] function.
-  void cat(String path, {LineAction stdout}) {
+  void cat(String path, {LineAction stdout = print}) {
     var sourceFile = File(path);
 
     Settings().verbose('cat:  ${absolute(path)}');
@@ -39,11 +41,7 @@ class Cat extends DShellFunction {
         .transform(utf8.decoder)
         .transform(LineSplitter())
         .forEach((line) {
-      if (stdout != null) {
-        stdout(line);
-      } else {
-        print(line);
-      }
+      stdout(line);
     }));
   }
 }

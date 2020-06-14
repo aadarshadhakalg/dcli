@@ -7,7 +7,8 @@ import 'flags.dart';
 
 /// Runs a dshell script.
 class CommandLineRunner {
-  static CommandLineRunner _self;
+  static bool _initialised = false;
+  static late CommandLineRunner _self;
 
   /// the list of flags set on the command line.
   static List<Flag> globalFlags = [VerboseFlag()];
@@ -18,7 +19,7 @@ class CommandLineRunner {
 
   ///
   factory CommandLineRunner() {
-    if (_self == null) {
+    if (!_initialised) {
       throw Exception('The CommandLineRunner has not been intialised');
     }
     return _self;
@@ -29,7 +30,9 @@ class CommandLineRunner {
     _self = CommandLineRunner._internal(Commands.asMap(availableCommands));
   }
 
-  CommandLineRunner._internal(this._availableCommands);
+  CommandLineRunner._internal(this._availableCommands) {
+    _initialised = true;
+  }
 
   /// Process the command line arguments to run the command.
   int process(List<String> arguments) {
@@ -38,7 +41,7 @@ class CommandLineRunner {
     var success = false;
 
     // Find the command and run it.
-    Command command;
+    Command? command;
     var cmdArguments = <String>[];
 
     for (var i = 0; i < arguments.length; i++) {

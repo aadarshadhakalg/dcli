@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'package:meta/meta.dart';
 
 import '../../dshell.dart';
 import '../script/command_line_runner.dart';
@@ -47,19 +46,16 @@ import '../script/command_line_runner.dart';
 ///
 
 T menu<T>(
-    {@required String prompt,
-    @required List<T> options,
-    int limit,
-    String Function(T) format,
+    {required String prompt,
+    required List<T> options,
+    int limit = -1,
+    String Function(T) format = _plain<T>,
     bool fromStart = true}) {
-  if (options == null || options.isEmpty) {
+  if (options.isEmpty) {
     throw InvalidArguments(
         'The list of [options] passed to menu(options: ) was empty.');
   }
-  if (prompt == null) {
-    throw InvalidArguments('The [prompt] passed to menu(prompt: ) was null.');
-  }
-  limit ??= options.length;
+  if (limit == -1) limit = options.length;
 
   var displayList = options;
   if (fromStart == false) {
@@ -70,12 +66,7 @@ T menu<T>(
   // display each option.
   for (var i = 1; i <= limit; i++) {
     var option = displayList[i - 1];
-    String desc;
-    if (format != null) {
-      desc = format(option);
-    } else {
-      desc = option.toString();
-    }
+    var desc = format(option);
     var no = '$i'.padLeft(3);
     print('$no) $desc');
   }
@@ -87,13 +78,13 @@ T menu<T>(
   // loop until the user enters a valid selection.
   while (!valid) {
     var selected = ask(prompt: prompt);
-    if (selected == null) continue;
 
-    index = int.tryParse(selected);
-    if (index == null) {
+    var tmp = int.tryParse(selected);
+    if (tmp == null) {
       printerr('Value must be an integer from 1 to $limit');
       continue;
     }
+    index = tmp;
 
     if (index < 1 || index > limit) {
       printerr('Invalid selection');
@@ -103,3 +94,5 @@ T menu<T>(
   }
   return options[index - 1];
 }
+
+String _plain<T>(T object) => object.toString();

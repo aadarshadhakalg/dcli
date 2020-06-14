@@ -13,9 +13,9 @@ import 'stack_trace_impl.dart';
 /// stack which is useless.
 /// This version replaces the exceptions stack
 /// with a full stack.
-T waitForEx<T>(Future<T> future) {
-  Exception exception;
-  T value;
+T? waitForEx<T>(Future<T> future) {
+  Exception? exception;
+  T? value;
   try {
     value = cli.waitFor<T>(future);
   }

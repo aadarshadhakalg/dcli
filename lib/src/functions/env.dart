@@ -66,7 +66,7 @@ void setEnv(String name, String value) => Env().setEnv(name, value);
 class Env extends DShellFunction {
   static Env _self = Env._internal();
 
-  Map<String, String> _envVars;
+  var _envVars = <String, String>{};
 
   bool _caseSensitive = true;
 
@@ -98,7 +98,7 @@ class Env extends DShellFunction {
     _self = Env._internal();
   }
 
-  String _env(String name) {
+  String? _env(String name) {
     Settings().verbose('env:  $name:${_envVars[name]}');
 
     return _envVars[name];
@@ -131,7 +131,7 @@ class Env extends DShellFunction {
   /// using the enviornment var appropriate for the user's OS.
   //ignore: non_constant_identifier_names
   String get HOME {
-    String home;
+    String? home;
 
     if (Settings().isWindows) {
       home = _env('APPDATA');
@@ -167,7 +167,7 @@ class Env extends DShellFunction {
 
   /// Passing a null [value] will remove the key from the
   /// set on environment variables.
-  void setEnv(String name, String value) {
+  void setEnv(String name, String? value) {
     if (value == null) {
       _envVars.remove(name);
       if (Platform.isWindows) {

@@ -32,7 +32,7 @@ class Commands {
       ];
 
   /// Find the command based on the [argument] passed
-  static Command findCommand(String argument, Map<String, Command> commands) {
+  static Command? findCommand(String argument, Map<String, Command> commands) {
     var command = commands[argument.toLowerCase()];
 
     return command;

@@ -12,6 +12,8 @@ linter:
   
 
 analyzer:
+  enable-experiment:
+    - non-nullable
   
   exclude: lib/templates/*.dart
   strong-mode:

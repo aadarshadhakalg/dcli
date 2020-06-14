@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:meta/meta.dart';
 
 import '../../dshell.dart';
 import '../functions/env.dart';
@@ -153,7 +152,7 @@ class RunnableProcess {
         .catchError((Object e, StackTrace s) {
       // 2 - No such file or directory
       if (e is ProcessException && e.errorCode == 2) {
-        var ep = e as ProcessException;
+        var ep = e;
         e = RunException.withArgs(
           ep.executable,
           ep.arguments,
@@ -230,7 +229,7 @@ class RunnableProcess {
   // If a LineAction exists we call
   // line action each time the process emmits a line.
   /// The [nothrow] argument is EXPERIMENTAL
-  void processUntilExit(Progress progress, {@required bool nothrow}) {
+  void processUntilExit(Progress? progress, {required bool nothrow}) {
     var done = Completer<bool>();
 
     progress ??= Progress.devNull();

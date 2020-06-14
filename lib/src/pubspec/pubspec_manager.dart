@@ -129,10 +129,10 @@ class PubSpecManager {
 
     // add any preferred items that simply arn't in the base
     for (var preference in preferred) {
-      // check inf the preference is already in the list.
-      var found = resolved.firstWhere(
+      // check if the preference is already in the list.
+      Dependency? found = resolved.firstWhere(
           (element) => element.name == preference.name,
-          orElse: () => null);
+          orElse: () => null as Dependency);
       if (found == null) resolved.add(preference);
     }
     return resolved;

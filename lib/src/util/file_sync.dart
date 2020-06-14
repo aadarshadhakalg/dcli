@@ -49,12 +49,13 @@ class FileSync {
     _raf = _file.openSync(mode: fileMode);
   }
 
-  /// Reads a single line from the file.
-  /// [lineDelimiter] the end of line delimiter.
-  /// May be one or two characters long.
+  /// Reads a single line from the file or null
+  /// if no lines remain.
+  /// [lineDelimiter] is the end of line delimiter
+  /// which may be one or two characters long.
   /// Defaults to \n.
   ///
-  String readLine({String lineDelimiter = '\n'}) {
+  String? readLine({String lineDelimiter = '\n'}) {
     var line = '';
     int byte;
     var priorChar = '';
@@ -73,7 +74,7 @@ class FileSync {
       priorChar = char;
     }
     if (line.isEmpty && foundDelimiter == false) {
-      line = null;
+      return null;
     }
     return line;
   }
@@ -105,22 +106,20 @@ class FileSync {
 
     var stackTrace = StackTraceImpl();
 
-    Object exception;
+    Object? exception;
 
     var done = Completer<bool>();
 
-    StreamSubscription<String> subscription;
+    late StreamSubscription<String> subscription;
 
     subscription =
         utf8.decoder.bind(inputStream).transform(const LineSplitter()).listen(
             (line) {
-              if (lineAction != null) {
-                var cont = lineAction(line);
-                if (cont == false) {
-                  subscription
-                      .cancel()
-                      .then((dynamic finished) => done.complete(true));
-                }
+              var cont = lineAction(line);
+              if (cont == false) {
+                subscription
+                    .cancel()
+                    .then((dynamic finished) => done.complete(true));
               }
             },
             cancelOnError: true,
@@ -139,7 +138,10 @@ class FileSync {
       if (exception is DShellException) {
         // not an exception, the user just doesn't want to continue.
       } else {
-        throw DShellException.from(exception, stackTrace);
+        /// hack as the non-null is still stupid.
+        /// we have a null check above so we should now be able to pass it.
+        var lexception = exception ?? Object();
+        throw DShellException.from(lexception, stackTrace);
       }
     }
   }

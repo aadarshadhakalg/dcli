@@ -16,7 +16,7 @@ import 'util/version.g.dart';
 /// flags passed on the command line to DShell.
 ///
 class Settings {
-  static Settings _self;
+  static late Settings _self = Settings.init();
 
   /// The directory name of the DShell templates.
   static const templateDir = 'templates';
@@ -43,33 +43,44 @@ class Settings {
 
   String _dshellBinPath;
 
-  String _scriptPath;
+  late String _scriptPath = _initScriptPath();
+
+  /// Returns a singleton providing
+  /// access to DShell settings.
+  factory Settings() {
+    return _self;
+  }
 
   /// The absolute path to the dshell script which
   /// is currently running.
+  // ignore: unnecessary_getters_setters
   String get scriptPath {
-    if (_scriptPath == null) {
-      var actual = Platform.script.toFilePath();
-      if (isWithin(dshellCachePath, actual)) {
-        // This is a script being run from a virtual project so we
-        // need to reconstruct is original path.
+    return _scriptPath;
+  }
 
-        // strip of the cache prefix
-        var rel = join(rootPath, relative(actual, from: dshellCachePath));
-        //.dshell/cache/home/bsutton/git/dshell/tool/activate_local.project/activate_local.dart
+  String _initScriptPath() {
+    late String path;
+    var actual = Platform.script.toFilePath();
+    if (isWithin(dshellCachePath, actual)) {
+      // This is a script being run from a virtual project so we
+      // need to reconstruct is original path.
 
-        // now remove the virtual project directory
-        _scriptPath = join(dirname(dirname(rel)), basename(rel));
-      } else {
-        _scriptPath = actual;
-      }
+      // strip of the cache prefix
+      var rel = join(rootPath, relative(actual, from: dshellCachePath));
+      //.dshell/cache/home/bsutton/git/dshell/tool/activate_local.project/activate_local.dart
+
+      // now remove the virtual project directory
+      path = join(dirname(dirname(rel)), basename(rel));
+    } else {
+      path = actual;
     }
 
-    return _scriptPath;
+    return path;
   }
 
   /// This is an internal function called by the run
   /// command and you should NOT be calling it!
+  // ignore: unnecessary_getters_setters
   set scriptPath(String scriptPath) {
     _scriptPath = scriptPath;
   }
@@ -132,14 +143,6 @@ class Settings {
     } else {
       _selectedFlags.remove(VerboseFlag());
     }
-  }
-
-  /// Returns a singleton providing
-  /// access to DShell settings.
-  factory Settings() {
-    _self ??= Settings.init();
-
-    return _self;
   }
 
   /// Used internally be dshell to initialise

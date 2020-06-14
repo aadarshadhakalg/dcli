@@ -16,16 +16,17 @@ abstract class Shell {
   void installTabCompletion();
 
   /// Returns the path to the shell's start script
-  String get startScriptPath;
+  /// Not all shells have a start Script.
+  String? get startScriptPath;
 
   /// Returns the  name of the shell's startup script
   /// e.g. .bashrc
-  String get startScriptName;
+  /// Not all shells have a start Script.
+  String? get startScriptName;
 
   /// The name of the shell
   /// e.g. bash
   String get name;
-
 
   /// Returns true if the shells name matches
   /// the passed [name].

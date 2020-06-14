@@ -195,17 +195,8 @@ void clearLine({AnsiClearMode mode = AnsiClearMode.all}) =>
 ///     [orange]
 ///  ...
 class AnsiColor {
-  static bool _emitAnsi;
-
   /// returns true of the terminal supports ansi escape characters.
-  static bool get emitAnsi {
-    if (_emitAnsi == null) {
-      return stdin.supportsAnsiEscapes;
-    } else {
-      return _emitAnsi;
-    }
-  }
-
+  ///
   /// You can set [emitAnsi] to
   /// override the detected ansi settings.
   /// Dart doesn't do a great job of correctly detecting
@@ -215,12 +206,11 @@ class AnsiColor {
   /// By default the detected setting is used.
   /// After setting emitAnsi you can reset back to the
   /// default detected by calling [resetEmitAnsi].
-  static set emitAnsi(bool emit) => _emitAnsi = emit;
+  static late bool emitAnsi = stdin.supportsAnsiEscapes;
 
-  /// If you have called [emitAnsi] then calling
   /// [resetEmitAnsi]  will reset the emit
   /// setting to the default detected.
-  static void get resetEmitAnsi => _emitAnsi = null;
+  static void get resetEmitAnsi => _emitAnsi = stdin.supportsAnsiEscapes;
 
   /// resets the color scheme.
   static String reset() => _emit(_resetCode);
